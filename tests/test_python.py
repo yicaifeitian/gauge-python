@@ -1,11 +1,12 @@
 from unittest import TestCase, main
 
 from getgauge.messages.messages_pb2 import Message
-from getgauge.registry import registry, MessagesStore
 from getgauge.python import (Messages, DataStore, DataStoreFactory, DictObject,
                              DataStoreContainer, data_store, Table, Specification,
                              Scenario, Step, ExecutionContext,
                              create_execution_context_from)
+from getgauge.registry import registry, MessagesStore, ScreenshotStore
+
 try:
     from collections.abc import MutableMapping
 except ImportError:
@@ -505,6 +506,31 @@ class DecoratorTests(TestCase):
         func = registry.screenshot_provider()
         expected = 'take_screenshot'
         self.assertEqual(expected, func.__name__)
+
+
+class ScreenshotTests(TestCase):
+    def test_pending_screenshots(self):
+        ScreenshotStore.capture()
+        pending_screenshots = ScreenshotStore.pending_screenshots()
+        self.assertEqual(['foo'], pending_screenshots)
+
+    def test_clear(self):
+        ScreenshotStore.capture()
+        ScreenshotStore.clear()
+        pending_screenshots = ScreenshotStore.pending_screenshots()
+        self.assertEqual([], pending_screenshots)
+
+    def test_pending_screenshots_gives_only_those_screenshots_which_are_not_collected(self):
+        ScreenshotStore.capture()
+        pending_screenshots = ScreenshotStore.pending_screenshots()
+        self.assertEqual(['foo'], pending_screenshots)
+
+        pending_screenshots = ScreenshotStore.pending_screenshots()
+        self.assertEqual([], pending_screenshots)
+
+        ScreenshotStore.capture()
+        pending_screenshots = ScreenshotStore.pending_screenshots()
+        self.assertEqual(['foo'], pending_screenshots)
 
 
 if __name__ == '__main__':
