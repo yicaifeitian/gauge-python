@@ -18,7 +18,7 @@ def refactor_step(request, response, with_location=True):
     )
     content = impl_file.get_code()
     if request.saveChanges:
-        with open(info.file_name, 'w') as f:
+        with open(info.file_name, 'w', encoding='utf-8') as f:
             f.write(content)
     response.refactorResponse.success = True
     response.refactorResponse.filesChanged.append(info.file_name)
